@@ -1,18 +1,18 @@
 package database
 
 import (
+	"BE-foodways/pkg/mysql"
+	"BE-foodways/models"
 	"fmt"
-
-	"gorm.io/driver/mysql"
 )
 
-func Migration() {
-	err := mysql.DB
+func RunMigration() {
+	err := mysql.DB.AutoMigrate(&models.User{})
 
 	if err != nil {
 		fmt.Println(err)
-		panic("Failed to Migrate")
+		panic("Migration Failed")
 	}
 
-	fmt.Println("Migration Has Been Succes")
+	fmt.Println("Migration Success")
 }
