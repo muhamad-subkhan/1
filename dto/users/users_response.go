@@ -1,7 +1,7 @@
 package usersdto
 
 type UserResponse struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 	Name string `json:"fullName" form:"name" validate:"required"`
 	Email string `json:"email" form:"email" validate:"required"`
 	Phone string `json:"phone" form:"phone"`
