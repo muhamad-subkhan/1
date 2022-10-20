@@ -128,6 +128,22 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Email = request.Email
 	}
 
+	if request.Phone != ""{
+		user.Phone = request.Phone
+	}
+
+	if request.Location != ""{
+		user.Location = request.Location
+	}
+
+	if request.Image != ""{
+		user.Image = request.Image
+	}
+
+	if request.Role != ""{
+		user.Role = request.Role
+	}
+	
 	data, err := h.UserRepository.UpdateUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
