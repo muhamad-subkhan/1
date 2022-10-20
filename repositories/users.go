@@ -8,10 +8,10 @@ import (
 
 type UserRepositories interface {
 	FindUsers() ([]models.User, error)
-  GetUser(ID int) (models.User, error)
-  CreateUser(user models.User) (models.User, error)
-  UpdateUser (user models.User) (models.User, error)
-  DeleteUser(user models.User) (models.User, error)
+	GetUser(ID int) (models.User, error)
+  	CreateUser(user models.User) (models.User, error)
+	UpdateUser (user models.User) (models.User, error)
+  	DeleteUser(user models.User) (models.User, error)
 }
 
 type repository struct {
