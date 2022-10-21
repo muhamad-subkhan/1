@@ -4,13 +4,18 @@ import (
 	authdto "BE-foodways/dto/auth"
 	dto "BE-foodways/dto/result"
   usersdto "BE-foodways/dto/users"
+  jwtToken "BE-foodways/pkg/jwt"
 	"BE-foodways/models"
 	"BE-foodways/pkg/bcrypt"
 	"BE-foodways/repositories"
 	"encoding/json"
 	"net/http"
+	"time"
+	"fmt"
+	"log"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type handlerAuth struct {
@@ -69,8 +74,69 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func convertResponseAuth(u models.User) usersdto.CreateUserRequest {
-	return authdto.RegisterRequest{
+func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+  
+	request := new(authdto.LoginRequest)
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	  w.WriteHeader(http.StatusBadRequest)
+	  response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	  json.NewEncoder(w).Encode(response)
+	  return
+	}
+  
+	user := models.User{
+	  Email:    request.Email,
+	  Password: request.Password,
+	}
+  
+	// Check email
+	user, err := h.AuthRepositories.Login(user.Email)
+	if err != nil {
+	  w.WriteHeader(http.StatusBadRequest)
+	  response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+	  json.NewEncoder(w).Encode(response)
+	  return
+	}
+  
+	// Check password
+	isValid := bcrypt.CheckPasswordHash(request.Password, user.Password)
+	if !isValid {
+	  w.WriteHeader(http.StatusBadRequest)
+	  response := dto.ErrorResult{Code: http.StatusBadRequest, Message: "wrong email or password"}
+	  json.NewEncoder(w).Encode(response)
+	  return
+	}
+  
+	//generate token
+	claims := jwt.MapClaims{}
+	claims["id"] = user.ID
+	claims["exp"] = time.Now().Add(time.Hour * 2).Unix() // 2 hours expired
+  
+	token, errGenerateToken := jwtToken.GenerateToken(&claims)
+	if errGenerateToken != nil {
+	  log.Println(errGenerateToken)
+	  fmt.Println("Unauthorize")
+	  return
+	}
+  
+	loginResponse := authdto.LoginResponse{
+	  Name:     user.Name,
+	  Email:    user.Email,
+	  Password: user.Password,
+	  Token:    token,
+	}
+  
+	w.Header().Set("Content-Type", "application/json")
+	response := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse}
+	json.NewEncoder(w).Encode(response)
+  
+  }
+
+
+
+func convertResponseAuth(u models.User) usersdto.UserResponse {
+	return usersdto.UserResponse{
 		Name:     u.Name,
 		Email:    u.Email,
 		Password: u.Password,
