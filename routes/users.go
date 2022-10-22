@@ -1,9 +1,10 @@
 package routes
 
 import (
-	"BE-foodways/pkg/mysql"
 	"BE-foodways/handlers"
+	"BE-foodways/pkg/mysql"
 	"BE-foodways/repositories"
+
 	"github.com/gorilla/mux"
 )
 

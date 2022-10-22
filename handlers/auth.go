@@ -3,16 +3,16 @@ package handlers
 import (
 	authdto "BE-foodways/dto/auth"
 	dto "BE-foodways/dto/result"
-  usersdto "BE-foodways/dto/users"
-  jwtToken "BE-foodways/pkg/jwt"
+	usersdto "BE-foodways/dto/users"
 	"BE-foodways/models"
 	"BE-foodways/pkg/bcrypt"
+	jwtToken "BE-foodways/pkg/jwt"
 	"BE-foodways/repositories"
 	"encoding/json"
-	"net/http"
-	"time"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
@@ -70,7 +70,7 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseAuth(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseAuth(data), Status: "Succes"}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -128,7 +128,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	}
   
 	w.Header().Set("Content-Type", "application/json")
-	response := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse, Status: "Succes"}
 	json.NewEncoder(w).Encode(response)
   
   }
@@ -137,6 +137,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 
 func convertResponseAuth(u models.User) usersdto.UserResponse {
 	return usersdto.UserResponse{
+		ID: 	  u.ID,
 		Name:     u.Name,
 		Email:    u.Email,
 		Password: u.Password,

@@ -1,13 +1,16 @@
 package database
 
 import (
-	"BE-foodways/pkg/mysql"
 	"BE-foodways/models"
+	"BE-foodways/pkg/mysql"
 	"fmt"
 )
 
 func RunMigration() {
-	err := mysql.DB.AutoMigrate(&models.User{})
+	err := mysql.DB.AutoMigrate(
+		&models.User{},
+		&models.Product{},
+	)
 
 	if err != nil {
 		fmt.Println(err)

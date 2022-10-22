@@ -14,15 +14,15 @@ import (
 )
 
 
-type handler struct {
+type handlerUser struct {
 	UserRepository repositories.UserRepositories
 }
 
-func HandlerUser(UserRepository repositories.UserRepositories) *handler {
-	return &handler{UserRepository}
+func HandlerUser(UserRepository repositories.UserRepositories) *handlerUser {
+	return &handlerUser{UserRepository}
 }
 
-  func (h *handler) FindUsers(w http.ResponseWriter, r *http.Request) {
+  func (h *handlerUser) FindUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	users, err := h.UserRepository.FindUsers() // menjalankan query kedatabase
@@ -33,11 +33,11 @@ func HandlerUser(UserRepository repositories.UserRepositories) *handler {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: users}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: users, Status: "succes"}
 	json.NewEncoder(w).Encode(response)
 }
 
-func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
+func (h *handlerUser) GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -56,7 +56,7 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 	
 
-func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *handlerUser) CreateUser(w http.ResponseWriter, r *http.Request) {
 	 w.Header().Set("Content-type", "application/json")
 
 	 request := new(usersdto.CreateUserRequest)
@@ -93,14 +93,14 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	 }
 
 	 w.WriteHeader(http.StatusOK)
-	 response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
+	 response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data), Status: "succes"}
 	 json.NewEncoder(w).Encode(response)
 
 
 }
 
 
-func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (h *handlerUser) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	request := new(usersdto.UpdateUserRequest)
@@ -128,6 +128,14 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Email = request.Email
 	}
 
+	// if request. != "" {
+	// 	user.Email = request.Email
+	// }
+	
+	if request.Gender != "" {
+		user.Gender = request.Gender
+	}
+
 	if request.Phone != ""{
 		user.Phone = request.Phone
 	}
@@ -153,12 +161,12 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: UpdateRespone(data), Status: "succes"}
 	json.NewEncoder(w).Encode(response)
 
 }
 
-func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *handlerUser) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
@@ -179,7 +187,7 @@ func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data), Status: "succes"}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -190,6 +198,20 @@ func convertResponse(u models.User) usersdto.UserResponse {
 		Name:     u.Name,
 		Email:    u.Email,
 		Phone: u.Phone,
+		Gender: u.Gender,
+		Location: u.Location,
+		Image: u.Image,
+		Role: u.Role,
+	}
+}
+
+func UpdateRespone(u models.User) usersdto.UpdateRespone {
+	return usersdto.UpdateRespone{
+		ID:       u.ID,
+		Name:     u.Name,
+		Email:    u.Email,
+		Phone: u.Phone,
+		Gender: u.Gender,
 		Location: u.Location,
 		Image: u.Image,
 		Role: u.Role,
